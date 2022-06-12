@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    override fun onFailure(call: Call<VideoDTO>, t: Throwable) {   // todo 예외처리
-
+                    override fun onFailure(call: Call<VideoDTO>, t: Throwable) {
+                        Log.d("MainActivity", "FAIL")
                     }
                 })
         }
