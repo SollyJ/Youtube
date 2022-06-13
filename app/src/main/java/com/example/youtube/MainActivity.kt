@@ -19,18 +19,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 영상 목록 RecyclerView 초기화
-        videoAdapter = VideoAdapter()
-        findViewById<RecyclerView>(R.id.mainRecyclerView).apply {
-            adapter = videoAdapter
-            layoutManager = LinearLayoutManager(context)
-        }
+        initRecyclerView()
 
         supportFragmentManager.beginTransaction()   // FrameLayout에 Fragment를 attach
             .replace(R.id.frameContainer, PlayerFragment())
             .commit()
 
         getVideoList()
+    }
+
+    // 영상 목록 RecyclerView 초기화
+    private fun initRecyclerView() {
+        // 클릭된 동영상을 PlayerFragment로 넘겨서 재생함
+        videoAdapter = VideoAdapter(callback = { url, title ->
+            supportFragmentManager.fragments.find{ it is PlayerFragment }?.let {
+                (it as PlayerFragment).play(url, title)
+            }
+        })
+
+        findViewById<RecyclerView>(R.id.mainRecyclerView).apply {
+            adapter = videoAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
     }
 
     private fun getVideoList() {

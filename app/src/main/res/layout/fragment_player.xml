@@ -48,10 +48,12 @@
         app:layout_constraintStart_toEndOf="@+id/playerView"
         app:layout_constraintTop_toTopOf="@+id/bottomVideoController" />
 
+    <!-- 독립된 스크롤 이벤트를 가짐(중복 스크롤 방지) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragmentRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:nestedScrollingEnabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
