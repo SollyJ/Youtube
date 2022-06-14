@@ -1,5 +1,6 @@
 package com.example.youtube
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +11,13 @@ import com.example.youtube.Adapter.VideoAdapter
 import com.example.youtube.DTO.VideoDTO
 import com.example.youtube.Service.VideoService
 import com.example.youtube.databinding.FragmentPlayerBinding
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.firebase.firestore.EventListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,6 +28,7 @@ import kotlin.math.abs
 class PlayerFragment: Fragment(R.layout.fragment_player) {
     private var binding: FragmentPlayerBinding? = null
     private lateinit var videoAdapter: VideoAdapter
+    private var player: ExoPlayer? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -29,13 +38,23 @@ class PlayerFragment: Fragment(R.layout.fragment_player) {
 
         initMotionLayout(fragmentPlayerBinding)
         initRecyclerView(fragmentPlayerBinding)
+        initPlayer(fragmentPlayerBinding)
+        initVideoController(fragmentPlayerBinding)
+
         getVideoList()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        player?.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         binding = null
+        player?.release()
     }
 
     // playerMotionLayout과 mainMotionLayout을 연결
@@ -69,6 +88,43 @@ class PlayerFragment: Fragment(R.layout.fragment_player) {
         }
     }
 
+    // ExoPlayer 초기화
+    private fun initPlayer(fragmentPlayerBinding: FragmentPlayerBinding) {
+        context?.let { context ->
+            player = ExoPlayer.Builder(context).build()
+        }
+
+        fragmentPlayerBinding.playerView.player = player
+
+        binding?.let {
+            player?.addListener(object: Player.Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {   // Playing 여부가 바뀔때마다 함수 호출
+                    super.onIsPlayingChanged(isPlaying)
+
+                    if(isPlaying) {
+                        it.bottomVideoController.setImageResource(R.drawable.ic_baseline_pause_24)
+                    } else {
+                        it.bottomVideoController.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    }
+                }
+            })
+        }
+
+    }
+
+    // VideoController를 누르면 재생/일시정지하게끔
+    private fun initVideoController(fragmentPlayerBinding: FragmentPlayerBinding) {
+        fragmentPlayerBinding.bottomVideoController.setOnClickListener {
+            val player = this.player ?: return@setOnClickListener
+
+            if(player.isPlaying) {
+                player.pause()
+            } else {
+                player.play()
+            }
+        }
+    }
+
     private fun getVideoList() {
         val retrofit = Retrofit.Builder()   // retrofit 객체 생성
             .baseUrl("https://run.mocky.io/")
@@ -98,9 +154,24 @@ class PlayerFragment: Fragment(R.layout.fragment_player) {
     }
 
     fun play(url: String, title: String) {
+        // url -> data source -> media source
+        context?.let { context ->
+            val mediaItem = MediaItem.fromUri(Uri.parse(url))
+            val dataSourceFactory = DefaultDataSource.Factory(context)
+            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(mediaItem)
+
+            player?.apply {
+                setMediaSource(mediaSource)
+                prepare()
+                play()
+            }
+        }
+
         binding?.let {
             it.playerMotionLayout.transitionToEnd()   // MotionLayout의 End상태로 변함
             it.bottomVideoTitle.text = title
         }
     }
+
 }
