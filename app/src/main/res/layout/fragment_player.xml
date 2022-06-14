@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.example.youtube.CustomMotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/playerMotionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,6 +11,7 @@
         android:id="@+id/mainContainerLayout"
         android:layout_width="0dp"
         android:layout_height="250dp"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -30,7 +32,8 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/mainContainerLayout"
         app:layout_constraintEnd_toEndOf="@+id/mainContainerLayout"
-        app:layout_constraintTop_toTopOf="@+id/mainContainerLayout" />
+        app:layout_constraintTop_toTopOf="@+id/mainContainerLayout"
+        tools:src="@drawable/ic_baseline_pause_24" />
 
     <TextView
         android:id="@+id/bottomVideoTitle"
@@ -41,10 +44,12 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/bottomVideoController"
         app:layout_constraintEnd_toStartOf="@+id/bottomVideoController"
         app:layout_constraintStart_toEndOf="@+id/playerView"
-        app:layout_constraintTop_toTopOf="@+id/bottomVideoController" />
+        app:layout_constraintTop_toTopOf="@+id/bottomVideoController"
+        tools:text="Video Title" />
 
     <!-- 독립된 스크롤 이벤트를 가짐(중복 스크롤 방지) -->
     <androidx.recyclerview.widget.RecyclerView
